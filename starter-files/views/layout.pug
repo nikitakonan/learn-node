@@ -50,5 +50,5 @@ html
       block content
 
     block scripts
-      script(src=`https://maps.googleapis.com/maps/api/js?key=${process.env.MAP_KEY}&libraries=places`)
+      script(src=`https://www.bing.com/api/maps/mapcontrol?callback=GetMap&key=${process.env.MAP_KEY}` async defer)
       script(src="/dist/App.bundle.js")
