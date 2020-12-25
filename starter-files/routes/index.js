@@ -2,11 +2,13 @@ const express = require('express');
 const router = express.Router();
 const storeController = require('../controllers/storeController');
 const userController = require('../controllers/userController');
+const reviewController = require('../controllers/reviewController');
 const authController = require('../controllers/authController');
 const { catchErrors } = require('../handlers/errorHandlers');
 
 router.get('/', catchErrors(storeController.getStores));
 router.get('/stores', catchErrors(storeController.getStores));
+router.get('/stores/page/:page', catchErrors(storeController.getStores));
 router.get('/add', authController.isLoggedIn, storeController.addStore);
 router.get('/stores/:slug', catchErrors(storeController.getStore));
 
@@ -58,5 +60,13 @@ router.get(
   authController.isLoggedIn,
   catchErrors(storeController.heartedStores)
 );
+
+router.post(
+  '/reviews/:id',
+  authController.isLoggedIn,
+  catchErrors(reviewController.addReview)
+);
+
+router.get('/top', catchErrors(storeController.getTopStores));
 
 module.exports = router;
