@@ -16,7 +16,8 @@ export const staticMap = ([lng, lat]: [number, number]) =>
   `https://dev.virtualearth.net/REST/v1/Imagery/Map/Road/${lat},${lng}/14?mapSize=800,150&pp=${lat},${lng};66&mapLayer=Basemap,Buildings&key=${process.env.MAP_KEY}&dpi=Large`;
 
 // inserting an SVG
-export const icon = (name: string) => fs.readFileSync(`./public/images/icons/${name}.svg`);
+export const icon = (name: string) =>
+  fs.readFileSync(`./public/images/icons/${name}.svg`);
 
 // Some details about the site
 export const siteName = `Now That's Delicious!`;
