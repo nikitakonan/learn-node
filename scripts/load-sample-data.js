@@ -2,13 +2,18 @@ require('dotenv').config({ path: __dirname + '/../variables.env' });
 const fs = require('fs');
 
 const mongoose = require('mongoose');
-mongoose.connect(process.env.DATABASE);
+mongoose.connect(process.env.DATABASE, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useCreateIndex: true,
+  useFindAndModify: false,
+});
 mongoose.Promise = global.Promise; // Tell Mongoose to use ES6 promises
 
 // import all of our models - they need to be imported only once
-const Store = require('../models/Store');
-const Review = require('../models/Review');
-const User = require('../models/User');
+const Store = require('../dist/models/Store').default;
+const Review = require('../dist/models/Review').default;
+const User = require('../dist/models/User').default;
 
 const stores = JSON.parse(fs.readFileSync(__dirname + '/stores.json', 'utf-8'));
 const reviews = JSON.parse(
@@ -18,9 +23,9 @@ const users = JSON.parse(fs.readFileSync(__dirname + '/users.json', 'utf-8'));
 
 async function deleteData() {
   console.log('😢😢 Goodbye Data...');
-  await Store.remove();
-  await Review.remove();
-  await User.remove();
+  await Store.deleteMany();
+  await Review.deleteMany();
+  await User.deleteMany();
   console.log(
     'Data Deleted. To load sample data, run\n\n\t npm run sample\n\n'
   );
