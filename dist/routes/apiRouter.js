@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const storeController_1 = require("../controllers/storeController");
+const errorHandlers_1 = require("../handlers/errorHandlers");
+const router = express_1.Router();
+router.get('/search', errorHandlers_1.catchErrors(storeController_1.searchStores));
+router.get('/stores/near', errorHandlers_1.catchErrors(storeController_1.mapStores));
+router.post('/stores/:id/heart', errorHandlers_1.catchErrors(storeController_1.validateStore), errorHandlers_1.catchErrors(storeController_1.heartStore));
+exports.default = router;
