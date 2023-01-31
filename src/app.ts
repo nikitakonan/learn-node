@@ -3,6 +3,7 @@ import session from 'express-session';
 import mongoose from 'mongoose';
 import connectMongo from 'connect-mongo';
 import path from 'path';
+import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import passport from 'passport';
@@ -11,6 +12,7 @@ import flash from 'connect-flash';
 import expressValidator from 'express-validator';
 import routes from './routes/index';
 import apiRoutes from './routes/apiRouter';
+import apiV2Routes from './routes/apiV2Router';
 import * as helpers from './helpers';
 import {
   notFound,
@@ -32,6 +34,7 @@ app.set('view engine', 'pug'); // we use the engine pug, mustache or EJS work gr
 // serves up static files from the public folder. Anything in public/ will just be served up as the file it is
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
+app.use(morgan('tiny'));
 // Takes the raw requests and turns them into usable properties on req.body
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -79,6 +82,7 @@ app.use((req, _res, next) => {
 // After allllll that above middleware, we finally handle our own routes!
 app.use('/', routes);
 app.use('/api', apiRoutes);
+app.use('/apiV2', apiV2Routes);
 
 // If that above routes didnt work, we 404 them and forward to error handler
 app.use(notFound);

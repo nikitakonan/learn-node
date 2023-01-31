@@ -7,6 +7,7 @@
 */
 
 import { ErrorRequestHandler, RequestHandler } from 'express';
+import { ServerError } from '../types/ServerError';
 
 export const catchErrors = (fn: RequestHandler): RequestHandler =>
   async function (req, res, next) {
@@ -19,11 +20,8 @@ export const catchErrors = (fn: RequestHandler): RequestHandler =>
   If we hit a route that is not found, we mark it as 404 and pass it along to the next error handler to display
 */
 
-export type StatusError = Error & { status: number };
-
 export const notFound: RequestHandler = (_req, _res, next) => {
-  const err = new Error('Not Found') as StatusError;
-  err.status = 404;
+  const err = new ServerError('Not Found', 404);
   next(err);
 };
 
@@ -59,6 +57,8 @@ export const developmentErrors: ErrorRequestHandler = (
 ) => {
   err.stack = err.stack || '';
   const errorDetails = {
+    code: err.code,
+    field: err.field,
     message: err.message,
     status: err.status,
     stackHighlighted: err.stack.replace(
