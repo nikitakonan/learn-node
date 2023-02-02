@@ -2,10 +2,10 @@ import type { NextFunction, Request, RequestHandler, Response } from 'express';
 import { model } from 'mongoose';
 import multer, { memoryStorage } from 'multer';
 import { v4 } from 'uuid';
-import { Store, StoreModel } from '../models/Store';
-import { ServerError } from '../types/ServerError';
+import { Store, StoreModel } from '../../models/Store';
+import { ServerError } from '../../types/ServerError';
 import jimp from 'jimp';
-import { User } from '../models/User';
+import { User } from '../../models/User';
 
 const Store = model<Store, StoreModel>('Store');
 

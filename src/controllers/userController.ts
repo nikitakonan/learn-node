@@ -2,12 +2,7 @@ import mongoose from 'mongoose';
 import { promisify } from 'es6-promisify';
 import { RequestHandler } from 'express';
 import { User } from '../models/User';
-
-interface MappedError {
-  param: string;
-  msg: string;
-  value: string;
-}
+import { MappedError } from '../types/MappedError';
 
 const User = mongoose.model<User>('User');
 
