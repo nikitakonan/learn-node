@@ -34,13 +34,22 @@ export class UserController {
       message: 'Validation error',
     });
   }
-  async register(req: Request, _res: Response, next: NextFunction) {
+  async register(req: Request, res: Response) {
     const user = new User({
       email: req.body.email,
       name: req.body.name,
     });
     const register = promisify<User, User, string>(User.register.bind(User));
-    await register(user, req.body.password);
-    next();
+    try {
+      await register(user, req.body.password);
+      res.status(204).send();
+    } catch (e) {
+      const error = e as { name: string; message: string };
+      if (error.name === 'UserExistsError') {
+        res.status(400).json(error);
+      } else {
+        res.status(500).json(error);
+      }
+    }
   }
 }

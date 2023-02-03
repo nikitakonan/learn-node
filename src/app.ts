@@ -11,7 +11,6 @@ import { promisify } from 'es6-promisify';
 import flash from 'connect-flash';
 import expressValidator from 'express-validator';
 import routes from './routes/index';
-import cors from 'cors';
 import apiRoutes from './routes/apiRouter';
 import apiV2Routes from './routes/v2/apiRouter';
 import * as helpers from './helpers';
@@ -45,8 +44,6 @@ app.use(expressValidator());
 
 // populates req.cookies with any cookies that came along with the request
 app.use(cookieParser());
-
-app.use(cors({}));
 
 // Sessions allow us to store data on visitors from request to request
 // This keeps users logged in and allows us to send flash messages

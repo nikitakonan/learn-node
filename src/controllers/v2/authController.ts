@@ -11,7 +11,6 @@ function issueJWT(user: User) {
   const expiresIn = '1d';
 
   const now = new Date();
-  now.getSeconds();
 
   const payload = {
     sub: _id,
@@ -26,6 +25,7 @@ function issueJWT(user: User) {
   return {
     token: 'Bearer ' + signedToken,
     expires: expiresIn,
+    issued: now.toISOString(),
   };
 }
 
@@ -43,7 +43,7 @@ export const login = async (req: Request, res: Response) => {
       .status(401)
       .json({ success: false, message: 'Could not find user' });
   }
-  user.authenticate(pwd, (_, usr, error) => {
+  user.authenticate(pwd, (_, u: User, error) => {
     if (error) {
       return res.status(401).json(error);
     }
@@ -52,6 +52,12 @@ export const login = async (req: Request, res: Response) => {
       success: true,
       token: tokenObject.token,
       expiresIn: tokenObject.expires,
+      issued: tokenObject.issued,
+      user: {
+        id: u._id,
+        name: u.name,
+        email: u.email,
+      },
     });
   });
 };
