@@ -52,4 +52,19 @@ export class UserController {
       }
     }
   }
+  async updateAccount(req: Request, res: Response) {
+    const user = req.user as User;
+    const updates = {
+      name: req.body.name,
+      email: req.body.email,
+    };
+
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: user._id },
+      { $set: updates },
+      { new: true, runValidators: true, context: 'query' }
+    );
+
+    res.json({ data: updatedUser });
+  }
 }

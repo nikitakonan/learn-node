@@ -8,6 +8,7 @@ import jimp from 'jimp';
 import { User } from '../../models/User';
 
 const Store = model<Store, StoreModel>('Store');
+const UserModel = model<User>('User');
 
 type StoresBody = {
   data: Store[];
@@ -120,5 +121,64 @@ export class StoreController {
     const [tags, stores] = await Promise.all([tagsPromise, storesPromise]);
 
     res.json({ data: { tags, tag, stores } });
+  }
+  async searchStores(req: Request, res: Response) {
+    const search = <string>req.query.q;
+    const stores = await Store.find(
+      { $text: { $search: search } },
+      { score: { $meta: 'textScore' } }
+    )
+      .sort({
+        score: {
+          $meta: 'textScore',
+        },
+      })
+      .limit(5);
+    res.json(stores);
+  }
+  async mapStores(req: Request, res: Response) {
+    const coordinates = [req.query.lng, req.query.lat].map((val: any) =>
+      parseFloat(val)
+    );
+    const q = {
+      location: {
+        $near: {
+          $geometry: {
+            type: 'Point',
+            coordinates,
+          },
+          $maxDistance: 10000, // 10 km
+        },
+      },
+    };
+
+    const stores = await Store.find(q)
+      .select('slug name description location photo')
+      .limit(10);
+    res.json(stores);
+  }
+  async validateStore(req: Request, res: Response, next: NextFunction) {
+    const stores = await Store.find().select('_id');
+    const availableIds = stores.map((obj) => obj._id.toString());
+    if (availableIds.includes(req.params.id)) {
+      next();
+    } else {
+      res.status(400).json({
+        msg: `There is no store with '${req.params.id}' id`,
+      });
+    }
+  }
+  async heartStore(req: Request, res: Response) {
+    const usr = req.user as User;
+    const hearts = usr.hearts.map((obj) => obj.toString());
+    const operator = hearts.includes(req.params.id) ? '$pull' : '$addToSet';
+    const user = await UserModel.findByIdAndUpdate(
+      usr._id,
+      {
+        [operator]: { hearts: req.params.id },
+      },
+      { new: true }
+    );
+    res.json(user);
   }
 }

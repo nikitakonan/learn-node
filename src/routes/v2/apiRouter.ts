@@ -22,7 +22,7 @@ router.use(
   })
 );
 
-router.get('/stores', authenticate, catchErrors(c.getStores));
+router.get('/stores', catchErrors(c.getStores));
 router.get('/stores/:slug', catchErrors(c.getStore));
 router.post(
   '/add/:id',
@@ -31,11 +31,27 @@ router.post(
   catchErrors(resize),
   catchErrors(c.updateStore)
 );
-router.post('/add', upload, catchErrors(resize), catchErrors(c.createStore));
+router.post(
+  '/add',
+  authenticate,
+  upload,
+  catchErrors(resize),
+  catchErrors(c.createStore)
+);
 router.get('/top', catchErrors(c.getTopStores));
 router.get('/tags', catchErrors(c.getStoresByTag));
 router.get('/tags/:tag', catchErrors(c.getStoresByTag));
 router.post('/register', uc.validateRegister, uc.register);
 router.post('/login', login);
+router.post('/account', catchErrors(uc.updateAccount));
+
+router.get('/search', catchErrors(c.searchStores));
+router.get('/stores/near', catchErrors(c.mapStores));
+router.post(
+  '/stores/:id/heart',
+  authenticate,
+  catchErrors(c.validateStore),
+  catchErrors(c.heartStore)
+);
 
 export default router;

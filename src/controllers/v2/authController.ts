@@ -57,6 +57,7 @@ export const login = async (req: Request, res: Response) => {
         id: u._id,
         name: u.name,
         email: u.email,
+        hearts: u.hearts,
       },
     });
   });
