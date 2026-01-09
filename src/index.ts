@@ -17,7 +17,7 @@ if (major < 10 || (major === 10 && minor <= 0)) {
 }
 
 // import environmental variables from our variables.env file
-dotenv.config({ path: 'variables.env' });
+dotenv.config({ path: '../variables.env' });
 
 // Connect to our Database and handle any bad connections
 mongoose.connect(process.env.DATABASE!, {

@@ -10,6 +10,8 @@ passport.use(User.createStrategy());
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
+console.log('JWT_SECRET: ', process.env.JWT_SECRET);
+
 passport.use(
   'jwt',
   new JWTStrategy(
