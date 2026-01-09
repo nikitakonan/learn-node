@@ -9,9 +9,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.productionErrors = exports.developmentErrors = exports.flashValidationErrors = exports.notFound = exports.catchErrors = void 0;
 const ServerError_1 = require("../types/ServerError");
-const catchErrors = (fn) => async function (req, res, next) {
+const catchErrors = (fn) => (async function (req, res, next) {
     return Promise.resolve(fn(req, res, next)).catch(next);
-};
+});
 exports.catchErrors = catchErrors;
 /*
   Not Found Error Handler
@@ -34,7 +34,7 @@ const flashValidationErrors = (err, req, res, next) => {
     // validation errors look like
     const errorKeys = Object.keys(err.errors);
     errorKeys.forEach((key) => req.flash('error', err.errors[key].message));
-    res.redirect('back');
+    res.redirect(err.get("Referrer") || "/");
 };
 exports.flashValidationErrors = flashValidationErrors;
 /*

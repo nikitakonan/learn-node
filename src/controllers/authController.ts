@@ -69,7 +69,7 @@ export const confirmedPasswords: RequestHandler = (req, res, next) => {
     return;
   }
   req.flash('error', 'passwords do not match');
-  res.redirect('back');
+  res.redirect(req.get("Referrer") || "/");
 };
 
 export const update: RequestHandler = async (req, res) => {

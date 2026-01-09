@@ -13,6 +13,6 @@ const addReview = async (req, res) => {
     const newReview = new Review(req.body);
     await newReview.save();
     req.flash('success', 'Review Saved!');
-    res.redirect('back');
+    res.redirect(req.get("Referrer") || "/");
 };
 exports.addReview = addReview;

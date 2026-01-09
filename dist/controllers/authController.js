@@ -68,7 +68,7 @@ const confirmedPasswords = (req, res, next) => {
         return;
     }
     req.flash('error', 'passwords do not match');
-    res.redirect('back');
+    res.redirect(req.get("Referrer") || "/");
 };
 exports.confirmedPasswords = confirmedPasswords;
 const update = async (req, res) => {

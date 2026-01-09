@@ -10,9 +10,9 @@ import { ErrorRequestHandler, RequestHandler } from 'express';
 import { ServerError } from '../types/ServerError';
 
 export const catchErrors = (fn: RequestHandler): RequestHandler =>
-  async function (req, res, next) {
+  (async function(req, res, next) {
     return Promise.resolve(fn(req, res, next)).catch(next);
-  };
+  });
 
 /*
   Not Found Error Handler
@@ -41,7 +41,7 @@ export const flashValidationErrors: ErrorRequestHandler = (
   // validation errors look like
   const errorKeys = Object.keys(err.errors);
   errorKeys.forEach((key) => req.flash('error', err.errors[key].message));
-  res.redirect('back');
+  res.redirect(err.get("Referrer") || "/");
 };
 
 /*
