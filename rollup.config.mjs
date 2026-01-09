@@ -34,7 +34,11 @@ export default {
     postcss({
       extract: 'style.css',
       sourceMap: true,
-      use: ['sass'],
+      use: [
+        ['sass', {
+          api: 'modern-compiler',
+        }],
+      ],
       plugins: [autoprefixer],
     }),
   ],

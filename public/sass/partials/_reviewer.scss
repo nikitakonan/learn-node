@@ -1,3 +1,6 @@
+@use "sass:color";
+@use "variables" as *;
+
 /*
   Reviewer Form
  */
@@ -31,7 +34,7 @@
         &[for="star2"] { order: 2; }
         &[for="star1"] { order: 1; }
         &:hover, &:hover ~ label {
-          color: lighten($yellow,20%);
+          color: color.adjust($yellow, $lightness: 20%);
         }
       }
     }

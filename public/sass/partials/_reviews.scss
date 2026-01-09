@@ -1,3 +1,6 @@
+@use "sass:color";
+@use "variables" as *;
+
 .review {
   background: white;
   border: 1px solid $grey;
@@ -43,7 +46,7 @@
   }
   &__time {
     font-size: 1.2rem;
-    color: lighten(black, 60%);
+    color: color.adjust(black, $lightness: 60%);
   }
   &__stars {
     color: $yellow;

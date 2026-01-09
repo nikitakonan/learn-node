@@ -1,3 +1,5 @@
+@use "variables" as *;
+
 @keyframes slideIn {
   0% {
     transform: translateX(-10px);

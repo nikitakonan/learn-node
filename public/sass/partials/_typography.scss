@@ -1,3 +1,6 @@
+@use "sass:color";
+@use "variables" as *;
+
 @font-face {
   font-family: 'panama';
   src: url('/fonts/panama-bold-webfont.woff2') format('woff2'),
@@ -69,7 +72,7 @@ p {
   // inline link inside
   a {
     border-bottom: 0;
-    $yellowa: rgba($yellow, 0.8);
+    $yellowa: color.change($yellow, $alpha: 0.8);
     background-image: linear-gradient(to right, $yellowa 100%, $yellowa 50%);
   }
 }
