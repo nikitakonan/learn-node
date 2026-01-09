@@ -17,7 +17,7 @@ exports.login = passport_1.default.authenticate('local', {
     successFlash: 'You are now logged in',
 });
 const logout = (req, res) => {
-    req.logout();
+    req.logout(() => { });
     req.flash('success', 'You are logged out');
     res.redirect('/');
 };
@@ -40,7 +40,7 @@ const forgot = async (req, res) => {
     user.resetPasswordExpires = Date.now() + 3600000;
     await user.save();
     const resetURL = `http://${req.headers.host}/account/reset/${user.resetPasswordToken}`;
-    await mail_1.send({
+    await (0, mail_1.send)({
         user,
         resetURL,
         subject: 'Password Reset',
@@ -80,7 +80,7 @@ const update = async (req, res) => {
         req.flash('error', 'Password reset is invalid or has expired');
         return res.redirect('/login');
     }
-    const setPassword = es6_promisify_1.promisify(user.setPassword.bind(user));
+    const setPassword = (0, es6_promisify_1.promisify)(user.setPassword.bind(user));
     await setPassword(req.body.password);
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;

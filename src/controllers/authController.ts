@@ -16,7 +16,7 @@ export const login = passport.authenticate('local', {
 }) as RequestHandler;
 
 export const logout: RequestHandler = (req, res) => {
-  req.logout();
+  req.logout(() => {});
   req.flash('success', 'You are logged out');
   res.redirect('/');
 };

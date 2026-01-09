@@ -56,7 +56,7 @@ storeSchema.pre('save', async function (next) {
     if (!this.isModified('name')) {
         return next();
     }
-    this.slug = slugs_1.default(this.name);
+    this.slug = (0, slugs_1.default)(this.name);
     const slugRegEx = new RegExp(`^(${this.slug})((-[0-9]*$)?)$`, 'i');
     const storeConstructor = this.constructor;
     const storesWithSlug = await storeConstructor.find({ slug: slugRegEx });

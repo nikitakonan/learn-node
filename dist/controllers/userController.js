@@ -48,7 +48,7 @@ const register = async (req, res, next) => {
         email: req.body.email,
         name: req.body.name,
     });
-    const register = es6_promisify_1.promisify(User.register.bind(User));
+    const register = (0, es6_promisify_1.promisify)(User.register.bind(User));
     await register(user, req.body.password);
     next();
 };

@@ -1,7 +1,11 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -52,7 +56,7 @@ const userSchema = new mongoose_1.Schema({
     ],
 });
 userSchema.virtual('gravatar').get(function () {
-    const hash = md5_1.default(this.email);
+    const hash = (0, md5_1.default)(this.email);
     return `https://gravatar.com/avatar/${hash}?s=200`;
 });
 userSchema

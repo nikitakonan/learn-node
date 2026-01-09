@@ -17,10 +17,10 @@ const transportOptions = {
         pass: process.env.MAIL_PASS,
     },
 };
-const transport = nodemailer_1.createTransport(transportOptions);
+const transport = (0, nodemailer_1.createTransport)(transportOptions);
 const generateHTML = (filename, options = {}) => {
     const html = pug_1.default.renderFile(`${__dirname}/../../views/email/${filename}.pug`, options);
-    const inlined = juice_1.default(html);
+    const inlined = (0, juice_1.default)(html);
     return inlined;
 };
 const send = async (options) => {

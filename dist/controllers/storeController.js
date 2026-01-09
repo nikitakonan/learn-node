@@ -1,7 +1,11 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -27,10 +31,10 @@ const jimp_1 = __importDefault(require("jimp"));
 const mongoose_1 = require("mongoose");
 const multer_1 = __importStar(require("multer"));
 const uuid_1 = require("uuid");
-const Store = mongoose_1.model('Store');
-const User = mongoose_1.model('User');
+const Store = (0, mongoose_1.model)('Store');
+const User = (0, mongoose_1.model)('User');
 const multerOptions = {
-    storage: multer_1.memoryStorage(),
+    storage: (0, multer_1.memoryStorage)(),
     fileFilter(_req, file, cb) {
         const isPhoto = file.mimetype.startsWith('image/');
         if (isPhoto) {
@@ -41,13 +45,13 @@ const multerOptions = {
         }
     },
 };
-exports.upload = multer_1.default(multerOptions).single('photo');
+exports.upload = (0, multer_1.default)(multerOptions).single('photo');
 const resize = async (req, _res, next) => {
     if (!req.file) {
         return next();
     }
     const extention = req.file.mimetype.split('/')[1];
-    req.body.photo = `${uuid_1.v4()}.${extention}`;
+    req.body.photo = `${(0, uuid_1.v4)()}.${extention}`;
     const photo = await jimp_1.default.read(req.file.buffer);
     await photo.resize(800, jimp_1.default.AUTO);
     await photo.write(`./public/uploads/${req.body.photo}`);
@@ -94,7 +98,7 @@ const getStores = async (req, res) => {
 };
 exports.getStores = getStores;
 const confirmOwner = (store, user) => {
-    if (!store.author.equals(user._id)) {
+    if (!user._id.equals(store.author)) {
         throw new Error('You must own this store');
     }
 };
@@ -163,7 +167,7 @@ const mapStores = async (req, res) => {
                     type: 'Point',
                     coordinates,
                 },
-                $maxDistance: 10000,
+                $maxDistance: 10000, // 10 km
             },
         },
     };

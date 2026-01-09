@@ -82,7 +82,7 @@ export const getStores: RequestHandler = async (req, res) => {
 };
 
 const confirmOwner = (store: Store, user: User) => {
-  if (!store.author.equals(user._id)) {
+  if (!user._id.equals(store.author)) {
     throw new Error('You must own this store');
   }
 };

@@ -8,13 +8,18 @@
 */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.productionErrors = exports.developmentErrors = exports.flashValidationErrors = exports.notFound = exports.catchErrors = void 0;
+const ServerError_1 = require("../types/ServerError");
 const catchErrors = (fn) => async function (req, res, next) {
     return Promise.resolve(fn(req, res, next)).catch(next);
 };
 exports.catchErrors = catchErrors;
+/*
+  Not Found Error Handler
+
+  If we hit a route that is not found, we mark it as 404 and pass it along to the next error handler to display
+*/
 const notFound = (_req, _res, next) => {
-    const err = new Error('Not Found');
-    err.status = 404;
+    const err = new ServerError_1.ServerError('Not Found', 404);
     next(err);
 };
 exports.notFound = notFound;
@@ -40,6 +45,8 @@ exports.flashValidationErrors = flashValidationErrors;
 const developmentErrors = (err, _req, res, next) => {
     err.stack = err.stack || '';
     const errorDetails = {
+        code: err.code,
+        field: err.field,
         message: err.message,
         status: err.status,
         stackHighlighted: err.stack.replace(/[a-z_-\d]+.js:\d+:\d+/gi, '<mark>$&</mark>'),
@@ -50,7 +57,7 @@ const developmentErrors = (err, _req, res, next) => {
         'text/html': () => {
             res.render('error', errorDetails);
         },
-        'application/json': () => res.json(errorDetails),
+        'application/json': () => res.json(errorDetails), // Ajax call, send JSON back
     });
 };
 exports.developmentErrors = developmentErrors;

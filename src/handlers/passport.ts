@@ -7,10 +7,9 @@ const User = mongoose.model<User>('User');
 
 passport.use(User.createStrategy());
 
-passport.serializeUser(User.serializeUser());
+const serializeUserFn = User.serializeUser() as unknown as () => void;
+passport.serializeUser(serializeUserFn);
 passport.deserializeUser(User.deserializeUser());
-
-console.log('JWT_SECRET: ', process.env.JWT_SECRET);
 
 passport.use(
   'jwt',
