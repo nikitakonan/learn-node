@@ -1,6 +1,4 @@
-import mongoose, { HookNextFunction, Document, Types } from 'mongoose';
-
-mongoose.Promise = global.Promise;
+import mongoose, { Document, Types } from 'mongoose';
 
 export interface Review extends Document {
   created: Date;
@@ -16,12 +14,12 @@ const reviewSchema = new mongoose.Schema({
     default: Date.now,
   },
   author: {
-    type: mongoose.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: 'You must supply an author',
   },
   store: {
-    type: mongoose.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'Store',
     required: 'You must supply a store',
   },
@@ -36,12 +34,11 @@ const reviewSchema = new mongoose.Schema({
   },
 });
 
-function autopopulate(this: Review, next: HookNextFunction) {
-  this.populate('author');
-  next();
+async function autoPopulate(this: Review) {
+  await this.populate('author');
 }
 
-reviewSchema.pre('find', autopopulate);
-reviewSchema.pre('findOne', autopopulate);
+reviewSchema.pre('find', autoPopulate);
+reviewSchema.pre('findOne', autoPopulate);
 
 export default mongoose.model<Review>('Review', reviewSchema);

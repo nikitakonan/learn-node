@@ -1,12 +1,13 @@
 import md5 from 'md5';
-import mongoose, { PassportLocalDocument, Schema, Types } from 'mongoose';
-import mongodbErrorHandler from 'mongoose-mongodb-errors';
-import passportLocalMongoose from 'passport-local-mongoose';
+import mongoose, { Schema, Types } from 'mongoose';
+import passportLocalMongoose, {
+  type PassportLocalMongooseDocument,
+  type PassportLocalMongooseModel,
+  type PassportLocalMongooseOptions,
+} from 'passport-local-mongoose';
 import validator from 'validator';
 
-mongoose.Promise = global.Promise;
-
-export interface User extends PassportLocalDocument {
+export interface User extends PassportLocalMongooseDocument {
   email: string;
   name: string;
   resetPasswordToken?: string;
@@ -14,18 +15,18 @@ export interface User extends PassportLocalDocument {
   hearts: Types.ObjectId[];
 }
 
-const userSchema = new Schema<User>({
+const userSchema = new Schema<User, PassportLocalMongooseModel<User>>({
   email: {
     type: String,
     unique: true,
     lowercase: true,
-    required: `Please supply an email address`,
+    required: [true, 'Please supply an email address'],
     trim: true,
     validate: [validator.isEmail, 'Invalid Email Address'],
   },
   name: {
     type: String,
-    required: `Please supply a name`,
+    required: [true, 'Please supply a name'],
     trim: true,
   },
   resetPasswordToken: String,
@@ -43,8 +44,6 @@ userSchema.virtual('gravatar').get(function (this: User) {
   return `https://gravatar.com/avatar/${hash}?s=200`;
 });
 
-userSchema
-  .plugin(passportLocalMongoose, { usernameField: 'email' })
-  .plugin(mongodbErrorHandler);
+userSchema.plugin(passportLocalMongoose, { usernameField: 'email' } satisfies PassportLocalMongooseOptions);
 
 export default mongoose.model<User>('User', userSchema);

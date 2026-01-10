@@ -1,7 +1,6 @@
 import express from 'express';
 import session from 'express-session';
-import mongoose from 'mongoose';
-import connectMongo from 'connect-mongo';
+import MongoStore from 'connect-mongo';
 import path from 'path';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
@@ -21,8 +20,6 @@ import {
   productionErrors,
 } from './handlers/errorHandlers';
 import './handlers/passport';
-
-const MongoStore = connectMongo(session);
 
 // create our Express app
 const app = express();
@@ -53,7 +50,7 @@ app.use(
     name: process.env.KEY!,
     resave: false,
     saveUninitialized: false,
-    store: new MongoStore({ mongooseConnection: mongoose.connection }),
+    store: MongoStore.create({ mongoUrl: process.env.DATABASE }),
   })
 );
 

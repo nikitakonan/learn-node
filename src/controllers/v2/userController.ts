@@ -1,10 +1,10 @@
-import { promisify } from 'es6-promisify';
 import type { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { User } from '../../models/User';
+import { type PassportLocalMongooseModel } from 'passport-local-mongoose'
+import { type User } from '../../models/User';
 import type { MappedError } from '../../types/MappedError';
 
-const User = mongoose.model<User>('User');
+const UserModel = mongoose.model<User, PassportLocalMongooseModel<User>>('User');
 
 export class UserController {
   validateRegister(req: Request, res: Response, next: NextFunction) {
@@ -35,13 +35,13 @@ export class UserController {
     });
   }
   async register(req: Request, res: Response) {
-    const user = new User({
+    const user = new UserModel({
       email: req.body.email,
       name: req.body.name,
     });
-    const register = promisify<User, User, string>(User.register.bind(User));
+
     try {
-      await register(user, req.body.password);
+      await UserModel.register(user, req.body.password);
       res.status(204).send();
     } catch (e) {
       const error = e as { name: string; message: string };
@@ -59,7 +59,7 @@ export class UserController {
       email: req.body.email,
     };
 
-    const updatedUser = await User.findOneAndUpdate(
+    const updatedUser = await UserModel.findOneAndUpdate(
       { _id: user._id },
       { $set: updates },
       { new: true, runValidators: true, context: 'query' }

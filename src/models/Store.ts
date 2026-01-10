@@ -1,7 +1,5 @@
-import mongoose, { Document, HookNextFunction, Model, Types } from 'mongoose';
+import mongoose, { Document, Model, Types } from 'mongoose';
 import slug from 'slugs';
-
-mongoose.Promise = global.Promise;
 
 export interface Store extends Document {
   name: string;
@@ -22,6 +20,23 @@ export interface StoreModel extends Model<Store> {
   getTopStores(): Promise<Store[]>;
 }
 
+const locationSchema = new mongoose.Schema({
+  type: {
+    type: String,
+    default: 'Point',
+  },
+  coordinates: [
+    {
+      type: Number,
+      required: [true, 'You must supply coordinates!'],
+    },
+  ],
+  address: {
+    type: String,
+    required: [true, 'You must supply an address'],
+  },
+}, { _id: false });
+
 const storeSchema = new mongoose.Schema<Store>({
   name: {
     type: String,
@@ -38,27 +53,12 @@ const storeSchema = new mongoose.Schema<Store>({
     type: Date,
     default: Date.now,
   },
-  location: {
-    type: {
-      type: String,
-      default: 'Point',
-    },
-    coordinates: [
-      {
-        type: Number,
-        required: `You must supply coordinates!`,
-      },
-    ],
-    address: {
-      type: String,
-      required: `You must supply an address`,
-    },
-  },
+  location: locationSchema,
   photo: String,
   author: {
-    type: mongoose.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: 'You must supply an author',
+    required: [true, 'You must supply an author'],
   },
 });
 
@@ -71,9 +71,9 @@ storeSchema.index({
   location: '2dsphere',
 });
 
-storeSchema.pre<Store>('save', async function (next) {
+storeSchema.pre<Store>('save', async function () {
   if (!this.isModified('name')) {
-    return next();
+    return;
   }
   this.slug = slug(this.name);
 
@@ -84,8 +84,6 @@ storeSchema.pre<Store>('save', async function (next) {
   if (storesWithSlug.length) {
     this.slug = `${this.slug}-${storesWithSlug.length + 1}`;
   }
-
-  next();
 });
 
 storeSchema.statics.getTagsList = function () {
@@ -119,12 +117,11 @@ storeSchema.virtual('reviews', {
   foreignField: 'store',
 });
 
-function autopopulate(this: Store, next: HookNextFunction) {
-  this.populate('reviews');
-  next();
+async function autoPopulate(this: Store) {
+  await this.populate('reviews');
 }
 
-storeSchema.pre('find', autopopulate);
-storeSchema.pre('findOne', autopopulate);
+storeSchema.pre('find', autoPopulate);
+storeSchema.pre('findOne', autoPopulate);
 
 export default mongoose.model<Store, StoreModel>('Store', storeSchema);
