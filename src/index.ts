@@ -1,14 +1,10 @@
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
 
 interface AddressInfo {
   address: string;
   family: string;
   port: number;
 }
-
-// import environmental variables from our variables.env file
-dotenv.config({ path: '../variables.env' });
 
 // Connect to our Database and handle any bad connections
 mongoose.connect(process.env.DATABASE!);

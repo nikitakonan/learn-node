@@ -1,0 +1,21 @@
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: dang-mongodb
+    restart: always
+    ports:
+      - '7001:27017'
+    environment:
+      - MONGO_INITDB_DATABASE=dang
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - dang-network
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  dang-network:
+    driver: bridge

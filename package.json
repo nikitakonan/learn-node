@@ -76,7 +76,7 @@
     "concurrently": "3.4.0",
     "now": "^6.4.1",
     "postcss": "^8.2.1",
-    "prettier": "2.2.1",
+    "prettier": "^3.7.4",
     "rimraf": "^3.0.2",
     "rollup": "^4.9.6",
     "rollup-plugin-postcss": "^4.0.2",

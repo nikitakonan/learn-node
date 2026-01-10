@@ -2,12 +2,12 @@ import { randomUUID } from 'node:crypto';
 import { RequestHandler } from 'express';
 import jimp from 'jimp';
 import { model } from 'mongoose';
-import multer, { Options, memoryStorage } from 'multer';
-import { Store, StoreModel } from '../models/Store';
-import { User } from '../models/User';
+import multer, { type Options, memoryStorage } from 'multer';
+import { type Store, type StoreModel } from '../models/Store';
+import { type User } from '../models/User';
 
-const Store = model<Store, StoreModel>('Store');
-const User = model<User>('User');
+const StoreM = model<Store, StoreModel>('Store');
+const UserM = model<User>('User');
 
 const multerOptions: Options = {
   storage: memoryStorage(),
@@ -47,7 +47,7 @@ export const createStore: RequestHandler = async (req, res) => {
   const user = req.user as User;
   req.body.author = user._id;
 
-  const store = await new Store(req.body).save();
+  const store = await new StoreM(req.body).save();
   req.flash('success', `Successfully created ${store.name}`);
   res.redirect(`/stores/${store.slug}`);
 };
@@ -57,14 +57,20 @@ export const getStores: RequestHandler = async (req, res) => {
   const limit = 4;
   const skip = page * limit - limit;
 
-  const storesPromise = Store.find()
-    .skip(skip)
-    .limit(limit)
-    .sort({ created: 'desc' });
-  const countPromise = Store.countDocuments({});
+  // const storesPromise = StoreM.find()
+  //   .skip(skip)
+  //   .limit(limit)
+  //   .sort({ created: 'desc' });
+  // const countPromise = StoreM.countDocuments();
+  const stores = [];
+  const count = 0;
+  const pages = 0;
+  // const [
+  //   // stores,
+  //   count,
+  // ] = await Promise.all([, /*storesPromise*/ countPromise]);
 
-  const [stores, count] = await Promise.all([storesPromise, countPromise]);
-  const pages = Math.ceil(count / limit);
+  // const pages = Math.ceil(count ?? 1 / limit);
 
   if (!stores.length && skip) {
     req.flash('info', `No such page ${page}`);
@@ -74,7 +80,7 @@ export const getStores: RequestHandler = async (req, res) => {
 
   res.render('stores', {
     title: 'Stores',
-    stores,
+    stores: [],
     page,
     pages,
     count,
@@ -88,7 +94,7 @@ const confirmOwner = (store: Store, user: User) => {
 };
 
 export const editStore: RequestHandler = async (req, res) => {
-  const store = await Store.findOne({ _id: req.params.id });
+  const store = await StoreM.findOne({ _id: req.params.id });
   if (!store) {
     req.flash('error', `Store ${req.params.id} not found`);
     return res.render('back');
@@ -100,10 +106,14 @@ export const editStore: RequestHandler = async (req, res) => {
 
 export const updateStore: RequestHandler = async (req, res) => {
   req.body.location.type = 'Point';
-  const store = await Store.findOneAndUpdate({ _id: req.params.id }, req.body, {
-    new: true,
-    runValidators: true,
-  }).exec();
+  const store = await StoreM.findOneAndUpdate(
+    { _id: req.params.id },
+    req.body,
+    {
+      new: true,
+      runValidators: true,
+    },
+  ).exec();
   if (!store) {
     if (!store) {
       req.flash('error', `Store ${req.params.id} not found`);
@@ -115,8 +125,8 @@ export const updateStore: RequestHandler = async (req, res) => {
 };
 
 export const getStore: RequestHandler = async (req, res, next) => {
-  const store = await Store.findOne({ slug: req.params.slug }).populate(
-    'author reviews'
+  const store = await StoreM.findOne({ slug: req.params.slug }).populate(
+    'author reviews',
   );
   if (!store) {
     return next();
@@ -129,8 +139,8 @@ export const getStoresByTag: RequestHandler = async (req, res) => {
   const tag = req.params.tag;
   const tagQuery = tag || { $exists: true };
 
-  const tagsPromise = Store.getTagsList();
-  const storesPromise = Store.find({ tags: tagQuery });
+  const tagsPromise = StoreM.getTagsList();
+  const storesPromise = StoreM.find({ tags: tagQuery });
   const [tags, stores] = await Promise.all([tagsPromise, storesPromise]);
 
   res.render('tags', { title: 'Tags', tags, tag, stores });
@@ -138,9 +148,9 @@ export const getStoresByTag: RequestHandler = async (req, res) => {
 
 export const searchStores: RequestHandler = async (req, res) => {
   const search = <string>req.query.q;
-  const stores = await Store.find(
+  const stores = await StoreM.find(
     { $text: { $search: search } },
-    { score: { $meta: 'textScore' } }
+    { score: { $meta: 'textScore' } },
   )
     .sort({
       score: {
@@ -153,7 +163,7 @@ export const searchStores: RequestHandler = async (req, res) => {
 
 export const mapStores: RequestHandler = async (req, res) => {
   const coordinates = [req.query.lng, req.query.lat].map((val: any) =>
-    parseFloat(val)
+    parseFloat(val),
   );
   const q = {
     location: {
@@ -167,7 +177,7 @@ export const mapStores: RequestHandler = async (req, res) => {
     },
   };
 
-  const stores = await Store.find(q)
+  const stores = await StoreM.find(q)
     .select('slug name description location photo')
     .limit(10);
   res.json(stores);
@@ -178,7 +188,7 @@ export const mapPage: RequestHandler = (req, res) => {
 };
 
 export const validateStore: RequestHandler = async (req, res, next) => {
-  const stores = await Store.find().select('_id');
+  const stores = await StoreM.find().select('_id');
   const availableIds = stores.map((obj) => obj._id.toString());
   if (availableIds.includes(req.params.id)) {
     next();
@@ -193,19 +203,19 @@ export const heartStore: RequestHandler = async (req, res) => {
   const usr = req.user as User;
   const hearts = usr.hearts.map((obj) => obj.toString());
   const operator = hearts.includes(req.params.id) ? '$pull' : '$addToSet';
-  const user = await User.findByIdAndUpdate(
+  const user = await UserM.findByIdAndUpdate(
     usr._id,
     {
       [operator]: { hearts: req.params.id },
     },
-    { new: true }
+    { new: true },
   );
   res.json(user);
 };
 
 export const heartedStores: RequestHandler = async (req, res) => {
   const user = req.user as User;
-  const stores = await Store.find({
+  const stores = await StoreM.find({
     _id: {
       $in: user.hearts,
     },
@@ -214,6 +224,6 @@ export const heartedStores: RequestHandler = async (req, res) => {
 };
 
 export const getTopStores: RequestHandler = async (_req, res) => {
-  const stores = await Store.getTopStores();
+  const stores = await StoreM.getTopStores();
   res.render('topStores', { stores, title: '★ Top Stores!' });
 };

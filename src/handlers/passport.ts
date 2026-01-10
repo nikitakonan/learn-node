@@ -1,9 +1,8 @@
 import passport from 'passport';
 import mongoose from 'mongoose';
-import {type PassportLocalMongooseModel} from 'passport-local-mongoose';
-import {type User} from '../models/User';
+import { type PassportLocalMongooseModel } from 'passport-local-mongoose';
+import { type User } from '../models/User';
 import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt';
-
 
 const UserModel = mongoose.model<User, PassportLocalMongooseModel<User>>('User');
 passport.use(UserModel.createStrategy());
