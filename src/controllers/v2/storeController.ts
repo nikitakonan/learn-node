@@ -1,7 +1,7 @@
+import {randomUUID} from 'node:crypto';
 import type { NextFunction, Request, RequestHandler, Response } from 'express';
 import { model } from 'mongoose';
 import multer, { memoryStorage } from 'multer';
-import { v4 } from 'uuid';
 import { Store, StoreModel } from '../../models/Store';
 import { ServerError } from '../../types/ServerError';
 import jimp from 'jimp';
@@ -37,8 +37,8 @@ export const resize: RequestHandler = async (req, _res, next) => {
     return next();
   }
 
-  const extention = file.mimetype.split('/')[1];
-  body.photo = `${v4()}.${extention}`;
+  const extension = file.mimetype.split('/')[1];
+  body.photo = `${randomUUID()}.${extension}`;
 
   const photo = await jimp.read(file.buffer);
   photo.resize(800, jimp.AUTO);
