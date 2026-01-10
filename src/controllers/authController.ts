@@ -4,9 +4,9 @@ import { RequestHandler } from 'express';
 import mongoose from 'mongoose';
 import passport from 'passport';
 import { send as sendMail } from '../handlers/mail';
-import { User } from '../models/User';
+import { type User } from '../models/User';
 
-const User = mongoose.model<User>('User');
+const UserModel = mongoose.model<User>('User');
 
 export const login = passport.authenticate('local', {
   failureRedirect: '/login',
@@ -30,7 +30,7 @@ export const isLoggedIn: RequestHandler = (req, res, next) => {
 };
 
 export const forgot: RequestHandler = async (req, res) => {
-  const user = await User.findOne({ email: req.body.email });
+  const user = await UserModel.findOne({ email: req.body.email });
   if (!user) {
     req.flash('error', 'There is no such user');
     return res.redirect('/login');
@@ -52,7 +52,7 @@ export const forgot: RequestHandler = async (req, res) => {
 };
 
 export const reset: RequestHandler = async (req, res) => {
-  const user = await User.findOne({
+  const user = await UserModel.findOne({
     resetPasswordToken: req.params.token,
     resetPasswordExpires: { $gt: Date.now() },
   });
@@ -69,11 +69,11 @@ export const confirmedPasswords: RequestHandler = (req, res, next) => {
     return;
   }
   req.flash('error', 'passwords do not match');
-  res.redirect(req.get("Referrer") || "/");
+  res.redirect(req.get('Referrer') || '/');
 };
 
 export const update: RequestHandler = async (req, res) => {
-  const user = await User.findOne({
+  const user = await UserModel.findOne({
     resetPasswordToken: req.params.token,
     resetPasswordExpires: { $gt: Date.now() },
   });

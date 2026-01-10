@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { RequestHandler } from 'express';
+import { type RequestHandler } from 'express';
 import jimp from 'jimp';
 import { model } from 'mongoose';
 import multer, { type Options, memoryStorage } from 'multer';
@@ -57,20 +57,16 @@ export const getStores: RequestHandler = async (req, res) => {
   const limit = 4;
   const skip = page * limit - limit;
 
-  // const storesPromise = StoreM.find()
-  //   .skip(skip)
-  //   .limit(limit)
-  //   .sort({ created: 'desc' });
-  // const countPromise = StoreM.countDocuments();
-  const stores = [];
-  const count = 0;
-  const pages = 0;
-  // const [
-  //   // stores,
-  //   count,
-  // ] = await Promise.all([, /*storesPromise*/ countPromise]);
+  const storesQuery = StoreM.find()
+    .skip(skip)
+    .limit(limit)
+    .sort({ created: 'desc' });
+  const countQuery = StoreM.countDocuments();
 
-  // const pages = Math.ceil(count ?? 1 / limit);
+  const stores = await storesQuery.clone().exec();
+  const count = await countQuery.clone().exec();
+
+  const pages = Math.ceil(count / limit);
 
   if (!stores.length && skip) {
     req.flash('info', `No such page ${page}`);
@@ -80,7 +76,7 @@ export const getStores: RequestHandler = async (req, res) => {
 
   res.render('stores', {
     title: 'Stores',
-    stores: [],
+    stores,
     page,
     pages,
     count,

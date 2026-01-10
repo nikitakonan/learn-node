@@ -2,12 +2,12 @@ import { randomUUID } from 'node:crypto';
 import type { NextFunction, Request, RequestHandler, Response } from 'express';
 import { model } from 'mongoose';
 import multer, { memoryStorage } from 'multer';
-import { Store, StoreModel } from '../../models/Store';
+import { type Store, type StoreModel as TStore } from '../../models/Store';
 import { ServerError } from '../../types/ServerError';
 import jimp from 'jimp';
 import { User } from '../../models/User';
 
-const Store = model<Store, StoreModel>('Store');
+const StoreModel = model<Store, TStore>('Store');
 const UserModel = model<User>('User');
 
 type StoresBody = {
@@ -52,12 +52,11 @@ export class StoreController {
     const limit = 4;
     const skip = page * limit - limit;
 
-    const storesPromise = Store.find()
+    const storesPromise = StoreModel.find()
       .skip(skip)
       .limit(limit)
       .sort({ created: 'desc' });
-    const countPromise = Store.countDocuments({});
-
+    const countPromise = StoreModel.countDocuments({});
     const [stores, count] = await Promise.all([storesPromise, countPromise]);
     const pages = Math.ceil(count / limit);
 
@@ -74,8 +73,8 @@ export class StoreController {
     });
   }
   async getStore(req: Request, res: Response, next: NextFunction) {
-    const store = await Store.findOne({ slug: req.params.slug }).populate(
-      'author reviews'
+    const store = await StoreModel.findOne({ slug: req.params.slug }).populate(
+      'author reviews',
     );
     if (!store) {
       return next();
@@ -88,13 +87,13 @@ export class StoreController {
     if (req.body.location) {
       req.body.location.type = 'Point';
     }
-    const store = await Store.findOneAndUpdate(
+    const store = await StoreModel.findOneAndUpdate(
       { _id: req.params.id },
       req.body,
       {
         new: true,
         runValidators: true,
-      }
+      },
     ).exec();
     if (!store) {
       throw new ServerError(`Store ${req.params.id} not found`, 400);
@@ -105,28 +104,28 @@ export class StoreController {
     const user = req.user as User;
     req.body.author = user._id;
 
-    const store = await new Store(req.body).save();
+    const store = await new StoreModel(req.body).save();
     res.json({ data: store });
   }
   async getTopStores(_req: Request, res: Response) {
-    const stores = await Store.getTopStores();
+    const stores = await StoreModel.getTopStores();
     res.json({ data: stores });
   }
   async getStoresByTag(req: Request, res: Response) {
     const tag = req.params.tag;
     const tagQuery = tag || { $exists: true };
 
-    const tagsPromise = Store.getTagsList();
-    const storesPromise = Store.find({ tags: tagQuery });
+    const tagsPromise = StoreModel.getTagsList();
+    const storesPromise = StoreModel.find({ tags: tagQuery });
     const [tags, stores] = await Promise.all([tagsPromise, storesPromise]);
 
     res.json({ data: { tags, tag, stores } });
   }
   async searchStores(req: Request, res: Response) {
     const search = <string>req.query.q;
-    const stores = await Store.find(
+    const stores = await StoreModel.find(
       { $text: { $search: search } },
-      { score: { $meta: 'textScore' } }
+      { score: { $meta: 'textScore' } },
     )
       .sort({
         score: {
@@ -138,7 +137,7 @@ export class StoreController {
   }
   async mapStores(req: Request, res: Response) {
     const coordinates = [req.query.lng, req.query.lat].map((val: any) =>
-      parseFloat(val)
+      parseFloat(val),
     );
     const q = {
       location: {
@@ -152,13 +151,13 @@ export class StoreController {
       },
     };
 
-    const stores = await Store.find(q)
+    const stores = await StoreModel.find(q)
       .select('slug name description location photo')
       .limit(10);
     res.json(stores);
   }
   async validateStore(req: Request, res: Response, next: NextFunction) {
-    const stores = await Store.find().select('_id');
+    const stores = await StoreModel.find().select('_id');
     const availableIds = stores.map((obj) => obj._id.toString());
     if (availableIds.includes(req.params.id)) {
       next();
@@ -177,7 +176,7 @@ export class StoreController {
       {
         [operator]: { hearts: req.params.id },
       },
-      { new: true }
+      { new: true },
     );
     res.json(user);
   }
