@@ -8,7 +8,7 @@
   "scripts": {
     "clean": "rimraf dist",
     "build:server": "npm run clean && tsc",
-    "prod": "npm run build:server && node ./dist/index.js",
+    "prod": "npm run build:server && node --env-file=.env.production ./dist/index.js",
     "watch": "tsx watch --env-file=.env src/index.ts",
     "start": "concurrently \"npm run watch\" \"npm run assets\" --names \"💻,📦\" --prefix name",
     "assets": "rollup -c --watch",

@@ -3,7 +3,7 @@
     "target": "ES2018",
     "module": "CommonJS",
     "lib": ["ES2018"],
-    "sourceMap": true,
+    "sourceMap": false,
     "outDir": "dist",
     "rootDir": "src",
     "strict": true,
@@ -11,5 +11,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
-  }
+  },
+  "includes": ["src/**/*", "types/**/*"],
+  "exclude": ["node_modules", "dist", "scripts"]
 }
