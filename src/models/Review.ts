@@ -34,8 +34,8 @@ const reviewSchema = new mongoose.Schema({
   },
 });
 
-async function autoPopulate(this: Review) {
-  await this.populate('author');
+function autoPopulate(this: Review) {
+  this.populate('author');
 }
 
 reviewSchema.pre('find', autoPopulate);

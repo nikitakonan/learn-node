@@ -1,4 +1,4 @@
-import mongoose, { Document, Model, Types } from 'mongoose';
+import mongoose, { type Document, type Model, type Types } from 'mongoose';
 import slug from 'slugs';
 
 export interface Store extends Document {
@@ -8,6 +8,7 @@ export interface Store extends Document {
   tags: string[];
   created: Date;
   location: {
+    type: string;
     coordinates: [number, number];
     address: string;
   };
@@ -20,22 +21,25 @@ export interface StoreModel extends Model<Store> {
   getTopStores(): Promise<Store[]>;
 }
 
-const locationSchema = new mongoose.Schema({
-  type: {
-    type: String,
-    default: 'Point',
-  },
-  coordinates: [
-    {
-      type: Number,
-      required: [true, 'You must supply coordinates!'],
+const locationSchema = new mongoose.Schema<Store['location']>(
+  {
+    type: {
+      type: mongoose.Schema.Types.String,
+      default: 'Point',
     },
-  ],
-  address: {
-    type: String,
-    required: [true, 'You must supply an address'],
+    coordinates: [
+      {
+        type: Number,
+        required: `You must supply coordinates!`,
+      },
+    ],
+    address: {
+      type: String,
+      required: [true, `You must supply an address`],
+    },
   },
-}, { _id: false });
+  { _id: false },
+);
 
 const storeSchema = new mongoose.Schema<Store>({
   name: {
@@ -117,8 +121,8 @@ storeSchema.virtual('reviews', {
   foreignField: 'store',
 });
 
-async function autoPopulate(this: Store) {
-  await this.populate('reviews');
+function autoPopulate(this: Store) {
+  this.populate('reviews');
 }
 
 storeSchema.pre('find', autoPopulate);
