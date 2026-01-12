@@ -12,6 +12,33 @@ services:
     networks:
       - dang-network
 
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dang-server
+    restart: always
+    ports:
+      - '7777:7777'
+    environment:
+      - NODE_ENV=production
+      - DATABASE=mongodb://mongodb:27017/dang
+      - PORT=7777
+      - SECRET=${SECRET:-snickers}
+      - KEY=${KEY:-sweetsesh}
+      - JWT_SECRET=${JWT_SECRET:-snickers_sweetsesh}
+      - MAP_KEY=${MAP_KEY}
+      - MAIL_USER=${MAIL_USER}
+      - MAIL_PASS=${MAIL_PASS}
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_PORT=${MAIL_PORT}
+    depends_on:
+      - mongodb
+    networks:
+      - dang-network
+    volumes:
+      - ./public/uploads:/app/public/uploads
+
 volumes:
   mongodb_data:
     driver: local
